@@ -41,10 +41,6 @@ RUN_BUILD = $(BUILD) \
     --dest-archive $@ \
     $(NULL)
 
-ifdef PYBUILD_MUSL
-    PLATFORM := $(PLATFORM)-musl
-endif
-
 # Always write out settings files.
 $(shell $(RUN_BUILD) placeholder_archive makefiles)
 include $(OUTDIR)/Makefile.$(HOST_PLATFORM).$(TARGET_TRIPLE).$(PYBUILD_PYTHON_MAJOR_VERSION)
