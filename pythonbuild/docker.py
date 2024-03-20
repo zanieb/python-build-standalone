@@ -41,6 +41,7 @@ def ensure_docker_image(client, fh, image_path=None):
     image = None
 
     for s in res:
+        print(s)
         if "stream" in s:
             for l in s["stream"].strip().splitlines():
                 log(l)
