@@ -179,7 +179,7 @@ def main():
 
     print(args.make_target)
     subprocess.run(
-        ["make", "-j%d" % parallelism, args.make_target], env=env, check=True
+        ["make", "-j%d" % parallelism, args.make_target, "-n"], env=env, check=True
     )
 
     DIST.mkdir(exist_ok=True)
