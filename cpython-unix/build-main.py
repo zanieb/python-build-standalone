@@ -177,6 +177,7 @@ def main():
     # a long, serial dependency chain that can't be built in parallel.
     parallelism = min(1 if args.serial else 4, multiprocessing.cpu_count())
 
+    print(args.make_target)
     subprocess.run(
         ["make", "-j%d" % parallelism, args.make_target], env=env, check=True
     )
