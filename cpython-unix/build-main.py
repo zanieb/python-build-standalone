@@ -107,6 +107,11 @@ def main():
         default="default",
         help="The make target to evaluate",
     )
+    parser.add_argument(
+        "--print-env",
+        action="store_true",
+        help="Just print the environment variables that would be set",
+    )
 
     args = parser.parse_args()
 
@@ -159,6 +164,11 @@ def main():
         release_tag = os.environ["PYBUILD_RELEASE_TAG"]
     else:
         release_tag = release_tag_from_git()
+
+    if args.print_env:
+        for key, value in env.items():
+            print('export %s="%s"' % (key, value))
+        return
 
     archive_components = [
         "cpython-%s" % cpython_version,
