@@ -38,7 +38,6 @@ RUN_BUILD = $(BUILD) \
     --target-triple $(TARGET_TRIPLE) \
     --optimizations $(PYBUILD_OPTIMIZATIONS) \
     --python-source $(PYBUILD_PYTHON_SOURCE) \
-    --dest-archive $@ \
     $(NULL)
 
 # Always write out settings files.
