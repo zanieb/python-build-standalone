@@ -34,4 +34,4 @@ RUN ( echo 'amd64'; \
       echo 'i386'; \
     ) > /var/lib/dpkg/arch
 
-RUN apt-get update
+RUN apt-get update 2>&1 | tee /tmp/output.txt
