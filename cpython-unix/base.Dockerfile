@@ -22,7 +22,8 @@ WORKDIR '/build'
 RUN for s in debian_jessie debian_jessie-updates debian-security_jessie/updates; do \
       echo "deb [trusted=yes] http://snapshot.debian.org/archive/${s%_*}/20230322T152120Z/ ${s#*_} main"; \
     done > /etc/apt/sources.list && \
-    ( echo 'quiet "true";'; \
+    ( echo 'Debug::Acquire::http "true";'; \
+      echo 'Debug::pkgAcquire::Worker "true";'; \
       echo 'APT::Get::Assume-Yes "true";'; \
       echo 'APT::Install-Recommends "false";'; \
       echo 'Acquire::Check-Valid-Until "false";'; \
