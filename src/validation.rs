@@ -648,7 +648,6 @@ const GLOBAL_EXTENSIONS: &[&str] = &[
     "_weakref",
     "array",
     "atexit",
-    "audioop",
     "binascii",
     "builtins",
     "cmath",
@@ -675,6 +674,9 @@ const GLOBAL_EXTENSIONS: &[&str] = &[
 // _testsinglephase added in 3.12.
 // _sha256 and _sha512 merged into _sha2 in 3.12.
 // _xxinterpchannels added in 3.12.
+// audioop removed in 3.13
+// _crypt removed in 3.13
+// spwd removed in Python 3.13
 
 // We didn't build ctypes_test until 3.9.
 // We didn't build some test extensions until 3.9.
@@ -682,6 +684,7 @@ const GLOBAL_EXTENSIONS: &[&str] = &[
 const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &["_sha256", "_sha512", "parser"];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_9: &[&str] = &[
+    "audioop",
     "_peg_parser",
     "_sha256",
     "_sha512",
@@ -692,6 +695,7 @@ const GLOBAL_EXTENSIONS_PYTHON_3_9: &[&str] = &[
 ];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_10: &[&str] = &[
+    "audioop",
     "_sha256",
     "_sha512",
     "_uuid",
@@ -700,6 +704,7 @@ const GLOBAL_EXTENSIONS_PYTHON_3_10: &[&str] = &[
 ];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_11: &[&str] = &[
+    "audioop",
     "_sha256",
     "_sha512",
     "_tokenize",
@@ -710,6 +715,7 @@ const GLOBAL_EXTENSIONS_PYTHON_3_11: &[&str] = &[
 ];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_12: &[&str] = &[
+    "audioop",
     "_sha2",
     "_tokenize",
     "_typing",
@@ -722,14 +728,19 @@ const GLOBAL_EXTENSIONS_PYTHON_3_13: &[&str] = &[
     "_sha2",
     "_tokenize",
     "_typing",
-    "_xxinterpchannels",
-    "_xxsubinterpreters",
+    "_interpchannels",
+    "_subinterpreters",
     "_zoneinfo",
+    "_interpreters",
+    "_suggestions",
+    "_sysconfig",
+    "_testexternalinspection",
 ];
 
 const GLOBAL_EXTENSIONS_MACOS: &[&str] = &["_scproxy"];
 
-const GLOBAL_EXTENSIONS_POSIX: &[&str] = &[
+// TODO(zanieb): Consider replicating this explicitly for each Python version.
+const GLOBAL_EXTENSIONS_POSIX_PRE_313: &[&str] = &[
     "_crypt",
     "_ctypes_test",
     "_curses",
@@ -748,7 +759,26 @@ const GLOBAL_EXTENSIONS_POSIX: &[&str] = &[
     "termios",
 ];
 
-const GLOBAL_EXTENSIONS_LINUX: &[&str] = &["spwd"];
+const GLOBAL_EXTENSIONS_POSIX_POST_313: &[&str] = &[
+    "_ctypes_test",
+    "_curses",
+    "_curses_panel",
+    "_dbm",
+    "_posixshmem",
+    "_posixsubprocess",
+    "_testinternalcapi",
+    "fcntl",
+    "grp",
+    "posix",
+    "pwd",
+    "readline",
+    "resource",
+    "syslog",
+    "termios",
+];
+
+const GLOBAL_EXTENSIONS_LINUX_PRE_313: &[&str] = &["spwd"];
+const GLOBAL_EXTENSIONS_LINUX_POST_313: &[&str] = &[];
 
 const GLOBAL_EXTENSIONS_WINDOWS: &[&str] = &[
     "_msi",
@@ -1004,20 +1034,18 @@ fn validate_elf<'data, Elf: FileHeader<Endian = Endianness>>(
                     if let Some(version) = version_version {
                         let parts: Vec<&str> = version.splitn(2, '_').collect();
 
-                        if parts.len() == 2 {
-                            if parts[0] == "GLIBC" {
-                                let v = version_compare::Version::from(parts[1])
-                                    .expect("unable to parse version");
+                        if parts.len() == 2 && parts[0] == "GLIBC" {
+                            let v = version_compare::Version::from(parts[1])
+                                .expect("unable to parse version");
 
-                                if &v > wanted_glibc_max_version {
-                                    context.errors.push(format!(
-                                        "{} references too new glibc symbol {:?} ({} > {})",
-                                        path.display(),
-                                        name,
-                                        v,
-                                        wanted_glibc_max_version,
-                                    ));
-                                }
+                            if &v > wanted_glibc_max_version {
+                                context.errors.push(format!(
+                                    "{} references too new glibc symbol {:?} ({} > {})",
+                                    path.display(),
+                                    name,
+                                    v,
+                                    wanted_glibc_max_version,
+                                ));
                             }
                         }
                     }
@@ -1045,12 +1073,8 @@ fn validate_elf<'data, Elf: FileHeader<Endian = Endianness>>(
                     if let Some(filename) = path.file_name() {
                         let filename = filename.to_string_lossy();
 
-                        if filename.starts_with("libpython") && filename.ends_with(".so.1.0") {
-                            if matches!(symbol.st_bind(), STB_GLOBAL | STB_WEAK)
-                                && symbol.st_visibility() == STV_DEFAULT
-                            {
-                                context.libpython_exported_symbols.insert(name.to_string());
-                            }
+                        if filename.starts_with("libpython") && filename.ends_with(".so.1.0") && matches!(symbol.st_bind(), STB_GLOBAL | STB_WEAK) && symbol.st_visibility() == STV_DEFAULT {
+                            context.libpython_exported_symbols.insert(name.to_string());
                         }
                     }
                 }
@@ -1144,7 +1168,7 @@ fn validate_macho<Mach: MachHeader<Endian = Endianness>>(
                 target_version = Some(parse_version_nibbles(v.version.get(endian)));
             }
             LoadCommandVariant::Dylib(command) => {
-                let raw_string = load_command.string(endian, command.dylib.name.clone())?;
+                let raw_string = load_command.string(endian, command.dylib.name)?;
                 let lib = String::from_utf8(raw_string.to_vec())?;
 
                 dylib_names.push(lib.clone());
@@ -1355,9 +1379,9 @@ fn validate_possible_object_file(
                     json,
                     triple,
                     python_major_minor,
-                    path.as_ref(),
+                    path,
                     header,
-                    &data,
+                    data,
                 )?;
             }
             FileKind::Elf64 => {
@@ -1368,9 +1392,9 @@ fn validate_possible_object_file(
                     json,
                     triple,
                     python_major_minor,
-                    path.as_ref(),
+                    path,
                     header,
-                    &data,
+                    data,
                 )?;
             }
             FileKind::MachO32 => {
@@ -1386,9 +1410,9 @@ fn validate_possible_object_file(
                     json.apple_sdk_version
                         .as_ref()
                         .expect("apple_sdk_version should be set"),
-                    path.as_ref(),
+                    path,
                     header,
-                    &data,
+                    data,
                 )?;
             }
             FileKind::MachO64 => {
@@ -1404,9 +1428,9 @@ fn validate_possible_object_file(
                     json.apple_sdk_version
                         .as_ref()
                         .expect("apple_sdk_version should be set"),
-                    path.as_ref(),
+                    path,
                     header,
-                    &data,
+                    data,
                 )?;
             }
             FileKind::MachOFat32 | FileKind::MachOFat64 => {
@@ -1418,11 +1442,11 @@ fn validate_possible_object_file(
             }
             FileKind::Pe32 => {
                 let file = PeFile32::parse(data)?;
-                validate_pe(&mut context, path.as_ref(), &file)?;
+                validate_pe(&mut context, path, &file)?;
             }
             FileKind::Pe64 => {
                 let file = PeFile64::parse(data)?;
-                validate_pe(&mut context, path.as_ref(), &file)?;
+                validate_pe(&mut context, path, &file)?;
             }
             _ => {}
         }
@@ -1450,7 +1474,7 @@ fn validate_extension_modules(
         return Ok(errors);
     }
 
-    let mut wanted = BTreeSet::from_iter(GLOBAL_EXTENSIONS.iter().map(|x| *x));
+    let mut wanted = BTreeSet::from_iter(GLOBAL_EXTENSIONS.iter().copied());
 
     match python_major_minor {
         "3.8" => {
@@ -1477,7 +1501,17 @@ fn validate_extension_modules(
     }
 
     if is_macos {
-        wanted.extend(GLOBAL_EXTENSIONS_POSIX);
+        match python_major_minor {
+            "3.8" | "3.9" | "3.10" | "3.11" | "3.12" => {
+                wanted.extend(GLOBAL_EXTENSIONS_POSIX_PRE_313);
+            }
+            "3.13" => {
+                wanted.extend(GLOBAL_EXTENSIONS_POSIX_POST_313);
+            }
+            _ => {
+                panic!("unhandled Python version: {}", python_major_minor);
+            }
+        }
         wanted.extend(GLOBAL_EXTENSIONS_MACOS);
     }
 
@@ -1492,15 +1526,42 @@ fn validate_extension_modules(
     }
 
     if is_linux {
-        wanted.extend(GLOBAL_EXTENSIONS_POSIX);
-        wanted.extend(GLOBAL_EXTENSIONS_LINUX);
+        match python_major_minor {
+            "3.8" | "3.9" | "3.10" | "3.11" | "3.12" => {
+                wanted.extend(GLOBAL_EXTENSIONS_POSIX_PRE_313);
+            }
+            "3.13" => {
+                wanted.extend(GLOBAL_EXTENSIONS_POSIX_POST_313);
+            }
+            _ => {
+                panic!("unhandled Python version: {}", python_major_minor);
+            }
+        }
+        match python_major_minor {
+            "3.8" | "3.9" | "3.10" | "3.11" | "3.12" => {
+                wanted.extend(GLOBAL_EXTENSIONS_LINUX_PRE_313);
+            }
+            "3.13" => {
+                wanted.extend(GLOBAL_EXTENSIONS_LINUX_POST_313);
+            }
+            _ => {
+                panic!("unhandled Python version: {}", python_major_minor);
+            }
+        }
 
-        if !is_linux_musl {
+        // Removed in Python 3.13
+        if !is_linux_musl && matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12")
+        {
             wanted.insert("ossaudiodev");
         }
     }
 
-    if (is_linux || is_macos) && matches!(python_major_minor, "3.9" | "3.10" | "3.11" | "3.12" | "3.13") {
+    if (is_linux || is_macos)
+        && matches!(
+            python_major_minor,
+            "3.9" | "3.10" | "3.11" | "3.12" | "3.13"
+        )
+    {
         wanted.extend([
             "_testbuffer",
             "_testimportmultiple",
@@ -1604,8 +1665,7 @@ fn validate_json(json: &PythonJsonMain, triple: &str, is_debug: bool) -> Result<
             triple,
             json.crt_features.contains(&"static".to_string()),
             &have_extensions,
-        )?
-        .into_iter(),
+        )?,
     );
 
     Ok(errors)
@@ -1659,7 +1719,7 @@ fn validate_distribution(
 
     let is_static = triple.contains("unknown-linux-musl");
 
-    let mut tf = crate::open_distribution_archive(&dist_path)?;
+    let mut tf = crate::open_distribution_archive(dist_path)?;
 
     // First entry in archive should be python/PYTHON.json.
     let mut entries = tf.entries()?;
@@ -1725,7 +1785,7 @@ fn validate_distribution(
         context.merge(validate_possible_object_file(
             json.as_ref().unwrap(),
             python_major_minor,
-            &triple,
+            triple,
             &path,
             &data,
         )?);
@@ -1750,9 +1810,9 @@ fn validate_distribution(
                 context.merge(validate_possible_object_file(
                     json.as_ref().unwrap(),
                     python_major_minor,
-                    &triple,
+                    triple,
                     &member_path,
-                    &member_data,
+                    member_data,
                 )?);
             }
         }
@@ -1938,11 +1998,7 @@ fn validate_distribution(
             } else if triple.contains("-windows-") {
                 false
             // Presence of a shared library extension implies no export.
-            } else if ext.shared_lib.is_some() {
-                false
-            } else {
-                true
-            };
+            } else { ext.shared_lib.is_none() };
 
             if exported != wanted {
                 context.errors.push(format!(
@@ -2020,7 +2076,7 @@ fn verify_distribution_behavior(dist_path: &Path) -> Result<Vec<String>> {
     tf.unpack(temp_dir.path())?;
 
     let python_json_path = temp_dir.path().join("python").join("PYTHON.json");
-    let python_json_data = std::fs::read(&python_json_path)?;
+    let python_json_data = std::fs::read(python_json_path)?;
     let python_json = parse_python_json(&python_json_data)?;
 
     let python_exe = temp_dir.path().join("python").join(python_json.python_exe);
@@ -2029,7 +2085,7 @@ fn verify_distribution_behavior(dist_path: &Path) -> Result<Vec<String>> {
     std::fs::write(&test_file, PYTHON_VERIFICATIONS.as_bytes())?;
 
     eprintln!("  running interpreter tests (output should follow)");
-    let output = duct::cmd(&python_exe, &[test_file.display().to_string()])
+    let output = duct::cmd(python_exe, [test_file.display().to_string()])
         .stdout_to_stderr()
         .unchecked()
         .env("TARGET_TRIPLE", &python_json.target_triple)
