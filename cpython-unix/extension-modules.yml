@@ -592,7 +592,7 @@ _testinternalcapi:
   sources:
     - _testinternalcapi.c
   includes-conditional:
-    - path: _testinternalcapi/parts.h
+    - path: Modules/_testinternalcapi
       minimum-python-version: "3.13"
   sources-conditional:
     - source: _testinternalcapi/pytime.c
