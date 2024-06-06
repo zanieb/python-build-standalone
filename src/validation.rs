@@ -681,7 +681,7 @@ const GLOBAL_EXTENSIONS: &[&str] = &[
 // We didn't build ctypes_test until 3.9.
 // We didn't build some test extensions until 3.9.
 
-const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &["_sha256", "_sha512", "parser"];
+const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &["audioop", "_sha256", "_sha512", "parser"];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_9: &[&str] = &[
     "audioop",
@@ -725,16 +725,16 @@ const GLOBAL_EXTENSIONS_PYTHON_3_12: &[&str] = &[
 ];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_13: &[&str] = &[
-    "_sha2",
-    "_tokenize",
-    "_typing",
     "_interpchannels",
-    "_subinterpreters",
-    "_zoneinfo",
+    "_interpqueues",
     "_interpreters",
+    "_sha2",
     "_suggestions",
     "_sysconfig",
     "_testexternalinspection",
+    "_tokenize",
+    "_typing",
+    "_zoneinfo",
 ];
 
 const GLOBAL_EXTENSIONS_MACOS: &[&str] = &["_scproxy"];
@@ -1073,7 +1073,11 @@ fn validate_elf<'data, Elf: FileHeader<Endian = Endianness>>(
                     if let Some(filename) = path.file_name() {
                         let filename = filename.to_string_lossy();
 
-                        if filename.starts_with("libpython") && filename.ends_with(".so.1.0") && matches!(symbol.st_bind(), STB_GLOBAL | STB_WEAK) && symbol.st_visibility() == STV_DEFAULT {
+                        if filename.starts_with("libpython")
+                            && filename.ends_with(".so.1.0")
+                            && matches!(symbol.st_bind(), STB_GLOBAL | STB_WEAK)
+                            && symbol.st_visibility() == STV_DEFAULT
+                        {
                             context.libpython_exported_symbols.insert(name.to_string());
                         }
                     }
@@ -1659,14 +1663,12 @@ fn validate_json(json: &PythonJsonMain, triple: &str, is_debug: bool) -> Result<
         .map(|x| x.as_str())
         .collect::<BTreeSet<_>>();
 
-    errors.extend(
-        validate_extension_modules(
-            &json.python_major_minor_version,
-            triple,
-            json.crt_features.contains(&"static".to_string()),
-            &have_extensions,
-        )?,
-    );
+    errors.extend(validate_extension_modules(
+        &json.python_major_minor_version,
+        triple,
+        json.crt_features.contains(&"static".to_string()),
+        &have_extensions,
+    )?);
 
     Ok(errors)
 }
@@ -1998,7 +2000,9 @@ fn validate_distribution(
             } else if triple.contains("-windows-") {
                 false
             // Presence of a shared library extension implies no export.
-            } else { ext.shared_lib.is_none() };
+            } else {
+                ext.shared_lib.is_none()
+            };
 
             if exported != wanted {
                 context.errors.push(format!(
