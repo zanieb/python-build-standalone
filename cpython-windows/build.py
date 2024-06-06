@@ -120,6 +120,10 @@ EXTENSION_TO_LIBRARY_DOWNLOADS_ENTRY = {
 #
 # This set was copied from test.libregrtest.pgo in the CPython source
 # distribution.
+#
+# When tests are removed, we generally retain their names as we just look for presence in this set.
+#
+# See https://github.com/python/cpython/blob/main/Lib/test/libregrtest/pgo.py
 PGO_TESTS = {
     "test_array",
     "test_base64",
@@ -152,19 +156,22 @@ PGO_TESTS = {
     "test_memoryview",
     "test_operator",
     "test_ordered_dict",
+    "test_patma",
     "test_pickle",
     "test_pprint",
     "test_re",
     "test_set",
-    # Renamed to test_sqlite3 in 3.11. We keep both names as we just look for
-    # test presence in this set.
+    # `test_sqlite` was renamed to `test_sqlite3` in 3.11.
     "test_sqlite",
     "test_sqlite3",
     "test_statistics",
+    # `test_unicode` was renamed to `test_str` in 3.13.
+    # See https://github.com/python/cpython/pull/13172
+    "test_str",
+    "test_unicode",
     "test_struct",
     "test_tabnanny",
     "test_time",
-    "test_unicode",
     "test_xml_etree",
     "test_xml_etree_c",
 }
