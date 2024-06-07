@@ -120,6 +120,10 @@ EXTENSION_TO_LIBRARY_DOWNLOADS_ENTRY = {
 #
 # This set was copied from test.libregrtest.pgo in the CPython source
 # distribution.
+#
+# When tests are removed, we generally retain their names as we just look for presence in this set.
+#
+# See https://github.com/python/cpython/blob/main/Lib/test/libregrtest/pgo.py
 PGO_TESTS = {
     "test_array",
     "test_base64",
@@ -152,19 +156,22 @@ PGO_TESTS = {
     "test_memoryview",
     "test_operator",
     "test_ordered_dict",
+    "test_patma",
     "test_pickle",
     "test_pprint",
     "test_re",
     "test_set",
-    # Renamed to test_sqlite3 in 3.11. We keep both names as we just look for
-    # test presence in this set.
+    # `test_sqlite` was renamed to `test_sqlite3` in 3.11.
     "test_sqlite",
     "test_sqlite3",
     "test_statistics",
+    # `test_unicode` was renamed to `test_str` in 3.13.
+    # See https://github.com/python/cpython/pull/13172
+    "test_str",
+    "test_unicode",
     "test_struct",
     "test_tabnanny",
     "test_time",
-    "test_unicode",
     "test_xml_etree",
     "test_xml_etree_c",
 }
@@ -1700,10 +1707,18 @@ def build_cpython(
             log("copying %s to %s" % (source, dest))
             shutil.copyfile(source, dest)
 
-        shutil.copyfile(
-            cpython_source_path / "Tools" / "scripts" / "run_tests.py",
-            out_dir / "python" / "build" / "run_tests.py",
-        )
+        # CPython 3.13 removed `run_tests.py`.
+        if meets_python_minimum_version(python_version, "3.13"):
+            # TODO(zanieb): Write a script to invoke `python -m test --slow-ci`
+            # or update the metadata to not require `run_tests.py`
+            pathlib.Path(
+                out_dir / "python" / "build" / "run_tests.py",
+            ).touch()
+        else:
+            shutil.copyfile(
+                cpython_source_path / "Tools" / "scripts" / "run_tests.py",
+                out_dir / "python" / "build" / "run_tests.py",
+            )
 
         licenses_dir = out_dir / "python" / "licenses"
         licenses_dir.mkdir()
