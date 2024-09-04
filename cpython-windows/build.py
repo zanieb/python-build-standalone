@@ -1409,6 +1409,12 @@ def build_cpython(
     setuptools_wheel = download_entry("setuptools", BUILD)
     pip_wheel = download_entry("pip", BUILD)
 
+    # CPython 3.13+ no longer uses a bundled version by default
+    if meets_python_minimum_version(python_version, "3.13"):
+        mpdecimal_archive = download_entry("mpdecimal", BUILD)
+    else:
+        mpdecimal_archive = None
+
     if arch == "amd64":
         build_platform = "x64"
         build_directory = "amd64"
@@ -1426,12 +1432,16 @@ def build_cpython(
             for a in (
                 python_archive,
                 bzip2_archive,
+                mpdecimal_archive,
                 openssl_archive,
                 sqlite_archive,
                 tk_bin_archive,
                 xz_archive,
                 zlib_archive,
             ):
+                if a is None:
+                    continue
+
                 log("extracting %s to %s" % (a, td))
                 fs.append(e.submit(extract_tar_to_directory, a, td))
 
@@ -1598,11 +1608,6 @@ def build_cpython(
         # CPython 3.12 removed distutils.
         if not meets_python_minimum_version(python_version, "3.12"):
             args.append("--include-distutils")
-
-        # CPython 3.13+ no longer uses a bundled libmpdec by default
-        # TODO(zanieb): We should use the system libmpdec as we do for Unix builds
-        if meets_python_minimum_version(python_version, "3.13"):
-            args.append("--with-system-libmpdec=no")
 
         args.extend(["--include-idle", "--include-stable", "--include-tcltk"])
 
