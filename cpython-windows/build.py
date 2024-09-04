@@ -352,6 +352,7 @@ def hack_props(
     xz_version = DOWNLOADS["xz"]["version"]
     zlib_version = DOWNLOADS["zlib"]["version"]
     tcltk_commit = DOWNLOADS["tk-windows-bin"]["git_commit"]
+    mpdecimal_version = DOWNLOADS["mpdecimal"]["version"]
 
     sqlite_path = td / ("sqlite-autoconf-%s" % sqlite_version)
     bzip2_path = td / ("bzip2-%s" % bzip2_version)
@@ -359,6 +360,7 @@ def hack_props(
     tcltk_path = td / ("cpython-bin-deps-%s" % tcltk_commit)
     xz_path = td / ("xz-%s" % xz_version)
     zlib_path = td / ("zlib-%s" % zlib_version)
+    mpdecimal_path = td / ("mpdecimal-%s" % mpdecimal_version)
 
     openssl_root = td / "openssl" / arch
     openssl_libs_path = openssl_root / "lib"
@@ -397,6 +399,9 @@ def hack_props(
 
             elif b"<zlibDir" in line:
                 line = b"<zlibDir>%s\\</zlibDir>" % zlib_path
+
+            elif b"<mpdecimalDir" in line:
+                line = b"<mpdecimalDir>%s\\</mpdecimalDir>" % mpdecimal_path
 
             lines.append(line)
 
