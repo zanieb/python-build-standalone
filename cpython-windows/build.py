@@ -1599,6 +1599,11 @@ def build_cpython(
         if not meets_python_minimum_version(python_version, "3.12"):
             args.append("--include-distutils")
 
+        # CPython 3.13+ no longer uses a bundled libmpdec by default
+        # TODO(zanieb): We should use the system libmpdec as we do for Unix builds
+        if meets_python_minimum_version(python_version, "3.13"):
+            args.append("--with-system-libmpdec=no")
+
         args.extend(["--include-idle", "--include-stable", "--include-tcltk"])
 
         exec_and_log(
