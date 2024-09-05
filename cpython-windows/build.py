@@ -65,7 +65,10 @@ CONVERT_TO_BUILTIN_EXTENSIONS = {
     "_lzma": {
         "ignore_additional_depends": {"$(OutDir)liblzma$(PyDebugExt).lib"},
     },
-    "_msi": {},
+    "_msi": {
+        # Removed in 3.13.
+        "ignore_missing": True,
+    },
     "_overlapped": {},
     "_multiprocessing": {},
     "_socket": {},
