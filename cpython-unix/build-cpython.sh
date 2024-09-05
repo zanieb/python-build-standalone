@@ -117,6 +117,11 @@ if [ "${CC}" = "clang" ]; then
     else
         patch -p1 -i ${ROOT}/patch-disable-multiarch-legacy.patch
     fi
+elif [ "${CC}" = "musl-clang" ]; then
+  # This appears to also be a problem for musl builds on 3.13.
+  if [ -n "${PYTHON_MEETS_MINIMUM_VERSION_3_13}" ]; then
+    patch -p1 -i ${ROOT}/patch-disable-multiarch-13.patch
+  fi
 fi
 
 # Python 3.11 supports using a provided Python to use during bootstrapping
