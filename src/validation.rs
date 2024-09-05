@@ -680,7 +680,13 @@ const GLOBAL_EXTENSIONS: &[&str] = &[
 // We didn't build ctypes_test until 3.9.
 // We didn't build some test extensions until 3.9.
 
-const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &["audioop", "_sha256", "_sha512", "parser"];
+const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &[
+    "audioop",
+    "_sha256",
+    "_sha512",
+    "parser",
+    "_xxsubinterpreters",
+];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_9: &[&str] = &[
     "audioop",
@@ -1952,7 +1958,7 @@ fn validate_distribution(
             // Static distributions never export symbols.
             let wanted = if is_static {
                 false
-            // For some strange reason _PyWarnings_Init is exported as part of the ABI before 
+            // For some strange reason _PyWarnings_Init is exported as part of the ABI before
             // Python 3.13.
             } else if name == "_warnings" {
                 matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12")
