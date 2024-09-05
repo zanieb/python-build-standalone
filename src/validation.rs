@@ -1539,6 +1539,10 @@ fn validate_extension_modules(
         ]);
     }
 
+    if (is_linux) && python_major_minor == "3.13" {
+        wanted.extend(["_suggestions", "_testexternalinspection"]);
+    }
+
     if (is_linux || is_macos) && matches!(python_major_minor, "3.12" | "3.13") {
         wanted.insert("_testsinglephase");
     }
