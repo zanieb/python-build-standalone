@@ -761,6 +761,7 @@ x86_64-unknown-linux-musl)
     PYTHON_ARCH="x86_64-linux-musl"
     ;;
 x86_64-unknown-linux-*)
+    echo "TARGET_TRIPLE=${TARGET_TRIPLE}"
     PYTHON_ARCH="x86_64-linux-gnu"
     ;;
 *)
