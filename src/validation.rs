@@ -759,7 +759,6 @@ const GLOBAL_EXTENSIONS_POSIX: &[&str] = &[
 const GLOBAL_EXTENSIONS_LINUX_PRE_3_13: &[&str] = &["spwd"];
 
 const GLOBAL_EXTENSIONS_WINDOWS: &[&str] = &[
-    "_msi",
     "_overlapped",
     "_winapi",
     "_xxsubinterpreters",
@@ -768,6 +767,8 @@ const GLOBAL_EXTENSIONS_WINDOWS: &[&str] = &[
     "winreg",
     "winsound",
 ];
+
+const GLOBAL_EXTENSIONS_WINDOWS_PRE_3_13 : &[&str] = &["_msi"];
 
 /// Extension modules not present in Windows static builds.
 const GLOBAL_EXTENSIONS_WINDOWS_NO_STATIC: &[&str] = &["_testinternalcapi", "_tkinter"];
@@ -1493,6 +1494,10 @@ fn validate_extension_modules(
 
     if is_windows {
         wanted.extend(GLOBAL_EXTENSIONS_WINDOWS);
+
+        if matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12") {
+            wanted.extend(GLOBAL_EXTENSIONS_WINDOWS_PRE_3_13);
+        }
 
         if static_crt {
             for x in GLOBAL_EXTENSIONS_WINDOWS_NO_STATIC {
