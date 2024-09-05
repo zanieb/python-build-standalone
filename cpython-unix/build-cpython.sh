@@ -758,7 +758,7 @@ s390x-unknown-linux-gnu)
     PYTHON_ARCH="s390x-linux-gnu"
     ;;
 x86_64-unknown-linux-*)
-    if [ "${CC}" = "musl-clang" ]; then
+    if [ "${CC}" = "musl-clang" ] && [ "${PYTHON_MAJMIN_VERSION}" = "3.13" ]; then
         PYTHON_ARCH="x86_64-linux-musl"
     else
         PYTHON_ARCH="x86_64-linux-gnu"
