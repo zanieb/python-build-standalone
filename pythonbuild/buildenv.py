@@ -277,4 +277,5 @@ def build_environment(client, image):
             container.stop(timeout=0)
             container.remove()
         else:
-            td.cleanup()
+            if not os.environ.get("PYBUILD_KEEP_TEMPDIR"):
+                td.cleanup()
