@@ -757,12 +757,12 @@ ppc64le-unknown-linux-gnu)
 s390x-unknown-linux-gnu)
     PYTHON_ARCH="s390x-linux-gnu"
     ;;
-x86_64-unknown-linux-musl)
-    PYTHON_ARCH="x86_64-linux-musl"
-    ;;
 x86_64-unknown-linux-*)
-    echo "TARGET_TRIPLE=${TARGET_TRIPLE}"
-    PYTHON_ARCH="x86_64-linux-gnu"
+    if [ "${CC}" = "musl-clang" ]; then
+        PYTHON_ARCH="x86_64-linux-musl"
+    else
+        PYTHON_ARCH="x86_64-linux-gnu"
+    fi
     ;;
 *)
     echo "unhandled target triple: ${TARGET_TRIPLE}"
