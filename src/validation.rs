@@ -728,9 +728,7 @@ const GLOBAL_EXTENSIONS_PYTHON_3_13: &[&str] = &[
     "_interpqueues",
     "_interpreters",
     "_sha2",
-    "_suggestions",
     "_sysconfig",
-    "_testexternalinspection",
     "_tokenize",
     "_typing",
     "_zoneinfo",
@@ -762,14 +760,13 @@ const GLOBAL_EXTENSIONS_LINUX_PRE_3_13: &[&str] = &["spwd"];
 const GLOBAL_EXTENSIONS_WINDOWS: &[&str] = &[
     "_overlapped",
     "_winapi",
-    "_xxsubinterpreters",
     "msvcrt",
     "nt",
     "winreg",
     "winsound",
 ];
 
-const GLOBAL_EXTENSIONS_WINDOWS_PRE_3_13 : &[&str] = &["_msi"];
+const GLOBAL_EXTENSIONS_WINDOWS_PRE_3_13: &[&str] = &["_msi"];
 
 /// Extension modules not present in Windows static builds.
 const GLOBAL_EXTENSIONS_WINDOWS_NO_STATIC: &[&str] = &["_testinternalcapi", "_tkinter"];
