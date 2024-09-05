@@ -1955,7 +1955,7 @@ fn validate_distribution(
             // For some strange reason _PyWarnings_Init is exported as part of the ABI before 
             // Python 3.13.
             } else if name == "_warnings" {
-                matches!(python_major_minor, "3.9" | "3.10" | "3.11" | "3.12")
+                matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12")
             // Windows dynamic doesn't export extension module init functions.
             } else if triple.contains("-windows-") {
                 false
