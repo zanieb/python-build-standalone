@@ -444,6 +444,12 @@ if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
     export MACOSX_DEPLOYMENT_TARGET="${APPLE_MIN_DEPLOYMENT_TARGET}"
 fi
 
+# ptsrname_r is only available in SDK 13.4+
+if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
+    echo "Disabling ptsname_r due to macOS SDK 13.4+ requirement."
+    CONFIGURE_FLAGS="${CONFIGURE_FLAGS} ac_cv_func_ptsname_r=no"
+fi
+
 # We use ndbm on macOS and BerkeleyDB elsewhere.
 if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
     CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --with-dbmliborder=ndbm"
