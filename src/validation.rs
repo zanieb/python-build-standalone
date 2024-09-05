@@ -1962,10 +1962,14 @@ fn validate_distribution(
             // Static distributions never export symbols.
             let wanted = if is_static {
                 false
-            // For some strange reason _PyWarnings_Init is exported as part of the ABI before
-            // Python 3.13.
+            // For some strange reason _PyWarnings_Init is exported as part of the ABI
             } else if name == "_warnings" {
-                matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12")
+                // But not on Python 3.13 on Windows
+                if triple.contains("-windows-") {
+                    matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12") 
+                } else {
+                    true
+                }
             // Windows dynamic doesn't export extension module init functions.
             } else if triple.contains("-windows-") {
                 false
