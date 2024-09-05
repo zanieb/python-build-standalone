@@ -1163,15 +1163,17 @@ def collect_python_build_artifacts(
         "_ctypes_test",
         "_testbuffer",
         "_testcapi",
+        "_testclinic_limited",
         "_testclinic",
         "_testconsole",
         "_testembed",
         "_testimportmultiple",
         "_testinternalcapi",
-        "_testsinglephase",
+        "_testlimitedcapi",
         "_testmultiphase",
-        "xxlimited",
+        "_testsinglephase",
         "xxlimited_35",
+        "xxlimited",
     }
 
     other_projects = {"pythoncore"}
