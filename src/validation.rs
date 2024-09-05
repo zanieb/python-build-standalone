@@ -125,6 +125,7 @@ const PE_ALLOWED_LIBRARIES: &[&str] = &[
     "python310.dll",
     "python311.dll",
     "python312.dll",
+    "python313.dll",
     "sqlite3.dll",
     "tcl86t.dll",
     "tk86t.dll",
@@ -679,7 +680,13 @@ const GLOBAL_EXTENSIONS: &[&str] = &[
 // We didn't build ctypes_test until 3.9.
 // We didn't build some test extensions until 3.9.
 
-const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &["audioop", "_sha256", "_sha512", "parser"];
+const GLOBAL_EXTENSIONS_PYTHON_3_8: &[&str] = &[
+    "audioop",
+    "_sha256",
+    "_sha512",
+    "parser",
+    "_xxsubinterpreters",
+];
 
 const GLOBAL_EXTENSIONS_PYTHON_3_9: &[&str] = &[
     "audioop",
@@ -727,9 +734,7 @@ const GLOBAL_EXTENSIONS_PYTHON_3_13: &[&str] = &[
     "_interpqueues",
     "_interpreters",
     "_sha2",
-    "_suggestions",
     "_sysconfig",
-    "_testexternalinspection",
     "_tokenize",
     "_typing",
     "_zoneinfo",
@@ -759,15 +764,15 @@ const GLOBAL_EXTENSIONS_POSIX: &[&str] = &[
 const GLOBAL_EXTENSIONS_LINUX_PRE_3_13: &[&str] = &["spwd"];
 
 const GLOBAL_EXTENSIONS_WINDOWS: &[&str] = &[
-    "_msi",
     "_overlapped",
     "_winapi",
-    "_xxsubinterpreters",
     "msvcrt",
     "nt",
     "winreg",
     "winsound",
 ];
+
+const GLOBAL_EXTENSIONS_WINDOWS_PRE_3_13: &[&str] = &["_msi"];
 
 /// Extension modules not present in Windows static builds.
 const GLOBAL_EXTENSIONS_WINDOWS_NO_STATIC: &[&str] = &["_testinternalcapi", "_tkinter"];
@@ -1494,6 +1499,10 @@ fn validate_extension_modules(
     if is_windows {
         wanted.extend(GLOBAL_EXTENSIONS_WINDOWS);
 
+        if matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12") {
+            wanted.extend(GLOBAL_EXTENSIONS_WINDOWS_PRE_3_13);
+        }
+
         if static_crt {
             for x in GLOBAL_EXTENSIONS_WINDOWS_NO_STATIC {
                 wanted.remove(*x);
@@ -1949,9 +1958,10 @@ fn validate_distribution(
             // Static distributions never export symbols.
             let wanted = if is_static {
                 false
-            // For some strange reason _PyWarnings_Init is exported as part of the ABI.
+            // For some strange reason _PyWarnings_Init is exported as part of the ABI before
+            // Python 3.13.
             } else if name == "_warnings" {
-                true
+                matches!(python_major_minor, "3.8" | "3.9" | "3.10" | "3.11" | "3.12")
             // Windows dynamic doesn't export extension module init functions.
             } else if triple.contains("-windows-") {
                 false
