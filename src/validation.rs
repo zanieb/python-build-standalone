@@ -1100,7 +1100,7 @@ fn validate_macho<Mach: MachHeader<Endian = Endianness>>(
     bytes: &[u8],
 ) -> Result<()> {
     let advertised_target_version =
-        semver::Version::parse(&format!("{}.0", advertised_target_version))?;
+        semver::Version::parse(&format!("{}", advertised_target_version))?;
     let advertised_sdk_version = semver::Version::parse(&format!("{}.0", advertised_sdk_version))?;
 
     let endian = header.endian()?;
