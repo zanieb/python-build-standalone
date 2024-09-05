@@ -10,7 +10,7 @@ SCCACHE="${ROOT}/sccache"
 
 cd /build
 
-tar -xf binutils-${BINUTILS_VERSION}.tar.xz
+tar -xf "${ROOT}/binutils-${BINUTILS_VERSION}.tar.xz"
 mkdir binutils-objdir
 pushd binutils-objdir
 
