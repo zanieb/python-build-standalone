@@ -436,6 +436,7 @@ def build_cpython_host(
             "build-cpython-host.sh",
             "patch-disable-multiarch.patch",
             "patch-disable-multiarch-13.patch",
+            "patch-musl-multiarch-13.patch",
             "patch-disable-multiarch-legacy.patch",
         }
         for s in sorted(support):

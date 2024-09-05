@@ -120,7 +120,7 @@ if [ "${CC}" = "clang" ]; then
 elif [ "${CC}" = "musl-clang" ]; then
   # This appears to also be a problem for musl builds on 3.13.
   if [ -n "${PYTHON_MEETS_MINIMUM_VERSION_3_13}" ]; then
-    patch -p1 -i ${ROOT}/patch-disable-multiarch-13.patch
+    patch -p1 -i ${ROOT}/patch-musl-multiarch-13.patch
   fi
 fi
 
