@@ -1539,7 +1539,7 @@ fn validate_extension_modules(
         ]);
     }
 
-    if (is_linux) && python_major_minor == "3.13" {
+    if (is_linux || is_macos) && python_major_minor == "3.13" {
         wanted.extend(["_suggestions", "_testexternalinspection"]);
     }
 
