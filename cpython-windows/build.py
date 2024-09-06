@@ -1722,13 +1722,13 @@ def build_cpython(
             log("copying %s to %s" % (source, dest))
             shutil.copyfile(source, dest)
 
-        # CPython 3.13 removed `run_tests.py`.
+        # CPython 3.13 removed `run_tests.py`, we provide a compatibility script
+        # for now.
         if meets_python_minimum_version(python_version, "3.13"):
-            # TODO(zanieb): Write a script to invoke `python -m test --slow-ci`
-            # or update the metadata to not require `run_tests.py`
-            pathlib.Path(
+            shutil.copyfile(
+                SUPPORT / "run_tests-13.py",
                 out_dir / "python" / "build" / "run_tests.py",
-            ).touch()
+            )
         else:
             shutil.copyfile(
                 cpython_source_path / "Tools" / "scripts" / "run_tests.py",

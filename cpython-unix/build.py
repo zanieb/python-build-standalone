@@ -747,6 +747,7 @@ def build_cpython(
             setuptools_archive,
             pip_archive,
             SUPPORT / "build-cpython.sh",
+            SUPPORT / "run_tests-13.py",
         ):
             build_env.copy_file(p)
 

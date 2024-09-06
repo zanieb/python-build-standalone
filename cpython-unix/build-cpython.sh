@@ -933,7 +933,10 @@ cp -av Python/frozen.c ${ROOT}/out/python/build/Python/
 cp -av Modules/Setup* ${ROOT}/out/python/build/Modules/
 
 # Copy the test hardness runner for convenience.
-if [ -d Tools/scripts/run_tests.py ]; then 
+# As of Python 3.13, the test harness runner has been removed so we provide a compatibility script
+if [ -n "${PYTHON_MEETS_MINIMUM_VERSION_3_13}" ]; then
+    cp -av ${ROOT}/run_tests-13.py ${ROOT}/out/python/build/run_tests.py
+else
     cp -av Tools/scripts/run_tests.py ${ROOT}/out/python/build/
 fi
 
