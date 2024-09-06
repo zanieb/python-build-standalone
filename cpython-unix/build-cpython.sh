@@ -774,6 +774,8 @@ s390x-unknown-linux-gnu)
     PYTHON_ARCH="s390x-linux-gnu"
     ;;
 x86_64-unknown-linux-*)
+    # In Python 3.13+, the musl target is identified in cross compiles and the output directory
+    # is named accordingly.
     if [ "${CC}" = "musl-clang" ] && [ "${PYTHON_MAJMIN_VERSION}" = "3.13" ]; then
         PYTHON_ARCH="x86_64-linux-musl"
     else
