@@ -359,7 +359,10 @@ fi
 if [ -n "${CPYTHON_OPTIMIZED}" ]; then
     CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --enable-optimizations"
     if [[ -n "${PYTHON_MEETS_MINIMUM_VERSION_3_13}" && -n "${BOLT_CAPABLE}" ]]; then
-        echo "BOLT is disabled on Python 3.13+ due to a SEGFAULT when running `test_embed`."
+        # Due to a SEGFAULT when running `test_embed` with BOLT instrumented binaries, we can't use
+        # BOLT on Python 3.13+.
+        # TODO: Find a fix for this or consider skipping these tests specifically
+        echo "BOLT is disabled on Python 3.13+"
     elif [[ -n "${PYTHON_MEETS_MINIMUM_VERSION_3_12}" && -n "${BOLT_CAPABLE}" ]]; then
         CONFIGURE_FLAGS="${CONFIGURE_FLAGS} --enable-bolt"
     fi
