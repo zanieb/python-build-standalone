@@ -146,8 +146,8 @@ if [ -n "${PYTHON_MEETS_MAXIMUM_VERSION_3_10}" ]; then
   patch -p1 -i ${ROOT}/patch-makesetup-deduplicate-objs.patch
 fi
 
-# testembed links against Tcl/Tk and libpython which already has Tcl/Tk leading
-# duplicate symbols and warnings from objc (which causes test failures).
+# testembed links against Tcl/Tk and libpython which already includes Tcl/Tk leading duplicate
+# symbols and warnings from objc (which then causes failures in `test_embed` during PGO).
 if [ -n "${PYTHON_MEETS_MAXIMUM_VERSION_3_13}" ]; then
   patch -p1 -i ${ROOT}/patch-make-testembed-nolink-tcltk.patch
 fi
