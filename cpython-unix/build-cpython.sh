@@ -453,9 +453,8 @@ if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
     export MACOSX_DEPLOYMENT_TARGET="${APPLE_MIN_DEPLOYMENT_TARGET}"
 fi
 
-# ptsrname_r is only available in SDK 13.4+
+# ptsrname_r is only available in SDK 13.4+, but we target a lower version for compatibility.
 if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
-    echo "Disabling ptsname_r due to macOS SDK 13.4+ requirement."
     CONFIGURE_FLAGS="${CONFIGURE_FLAGS} ac_cv_func_ptsname_r=no"
 fi
 
