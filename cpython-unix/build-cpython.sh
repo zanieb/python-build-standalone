@@ -146,6 +146,12 @@ if [ -n "${PYTHON_MEETS_MAXIMUM_VERSION_3_10}" ]; then
   patch -p1 -i ${ROOT}/patch-makesetup-deduplicate-objs.patch
 fi
 
+# testembed links against Tcl/Tk and libpython which already has Tcl/Tk leading
+# duplicate symbols and warnings from objc (which causes test failures).
+if [ -n "${PYTHON_MEETS_MAXIMUM_VERSION_3_13}" ]; then
+  patch -p1 -i ${ROOT}/patch-make-testembed-nolink-tcltk.patch
+fi
+
 # The default build rule for the macOS dylib doesn't pick up libraries
 # from modules / makesetup. So patch it accordingly.
 if [ -n "${PYTHON_MEETS_MINIMUM_VERSION_3_13}" ]; then
@@ -442,6 +448,12 @@ if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
     # to expose MACOSX_DEPLOYMENT_TARGET everywhere so the value percolates
     # into platform tag.
     export MACOSX_DEPLOYMENT_TARGET="${APPLE_MIN_DEPLOYMENT_TARGET}"
+fi
+
+# ptsrname_r is only available in SDK 13.4+
+if [ "${PYBUILD_PLATFORM}" = "macos" ]; then
+    echo "Disabling ptsname_r due to macOS SDK 13.4+ requirement."
+    CONFIGURE_FLAGS="${CONFIGURE_FLAGS} ac_cv_func_ptsname_r=no"
 fi
 
 # We use ndbm on macOS and BerkeleyDB elsewhere.

@@ -461,7 +461,7 @@ static PLATFORM_TAG_BY_TRIPLE: Lazy<HashMap<&'static str, &'static str>> = Lazy:
         ("mips64el-unknown-linux-gnuabi64", "todo"),
         ("ppc64le-unknown-linux-gnu", "linux-powerpc64le"),
         ("s390x-unknown-linux-gnu", "linux-s390x"),
-        ("x86_64-apple-darwin", "macosx-10.13-x86_64"),
+        ("x86_64-apple-darwin", "macosx-10.9-x86_64"),
         ("x86_64-apple-ios", "iOS-x86_64"),
         ("x86_64-pc-windows-msvc", "win-amd64"),
         ("x86_64-unknown-linux-gnu", "linux-x86_64"),
@@ -1100,7 +1100,7 @@ fn validate_macho<Mach: MachHeader<Endian = Endianness>>(
     bytes: &[u8],
 ) -> Result<()> {
     let advertised_target_version =
-        semver::Version::parse(&format!("{}", advertised_target_version))?;
+        semver::Version::parse(&format!("{}.0", advertised_target_version))?;
     let advertised_sdk_version = semver::Version::parse(&format!("{}.0", advertised_sdk_version))?;
 
     let endian = header.endian()?;
