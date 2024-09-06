@@ -1419,10 +1419,12 @@ def build_cpython(
     setuptools_wheel = download_entry("setuptools", BUILD)
     pip_wheel = download_entry("pip", BUILD)
 
-    # CPython 3.13+ no longer uses a bundled version by default
+    # CPython 3.13+ no longer uses a bundled `mpdecimal` version so we build it
     if meets_python_minimum_version(python_version, "3.13"):
         mpdecimal_archive = download_entry("mpdecimal", BUILD)
     else:
+        # TODO: Consider using the built mpdecimal for earlier versions as well,
+        # as we do for Unix builds.
         mpdecimal_archive = None
 
     if arch == "amd64":
