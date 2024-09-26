@@ -28,7 +28,8 @@ if [[ -n "${CROSS_COMPILING}" && "${PYBUILD_PLATFORM}" != "macos" ]]; then
     --without-manpages \
     --enable-widec \
     --disable-db-install \
-    --enable-symlinks
+    --enable-symlinks \
+
   make -j ${NUM_CPUS}
   make -j ${NUM_CPUS} install
 
@@ -106,6 +107,19 @@ else
     --sharedstatedir=/tools/deps/usr/com
     --with-default-terminfo-dir=/usr/share/terminfo
     --with-terminfo-dirs=/etc/terminfo:/lib/terminfo:/usr/share/terminfo
+    ac_cv_prog_cc_works=yes
+    ac_cv_prog_cxx_works=yes
+    ac_cv_func_malloc_0_nonnull=yes
+    ac_cv_func_memset=yes
+    ac_cv_func_calloc=yes
+    ac_cv_func_realloc=yes
+    ac_cv_func_memcpy=yes
+    ac_cv_func_strchr=yes
+    ac_cv_func_strrchr=yes
+    ac_cv_func_strcmp=yes
+    ac_cv_func_strncpy=yes
+    ac_cv_func_strlen=yes
+    --disable-option-checking
   "
 fi
 
