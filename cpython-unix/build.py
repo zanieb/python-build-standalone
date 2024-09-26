@@ -593,7 +593,7 @@ def python_build_info(
     bi["inittab_object"] = "build/Modules/config.o"
     bi["inittab_source"] = "build/Modules/config.c"
     # TODO ideally we'd get these from the build environment
-    bi["inittab_cflags"] = ["-std=c99", "-DNDEBUG", "-DPy_BUILD_CORE"]
+    bi["inittab_cflags"] = ["-std=c11", "-DNDEBUG", "-DPy_BUILD_CORE"]
 
     libraries = set()
 
