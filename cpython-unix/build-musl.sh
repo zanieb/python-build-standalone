@@ -9,6 +9,7 @@ cd /build
 
 export PATH=/tools/${TOOLCHAIN}/bin:/tools/host/bin:$PATH
 export CC=clang
+export CFLAGS="-fPIC"
 
 tar -xf musl-${MUSL_VERSION}.tar.gz
 
