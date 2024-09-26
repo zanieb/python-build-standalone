@@ -274,7 +274,8 @@ def build_environment(client, image):
         yield context
     finally:
         if container:
-            container.stop(timeout=0)
-            container.remove()
+            # container.stop(timeout=0)
+            # container.remove()
+            pass
         else:
             td.cleanup()
