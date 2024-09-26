@@ -15,9 +15,10 @@ export PKG_CONFIG_PATH=${TOOLS_PATH}/deps/share/pkgconfig
 tar -xf xproto-${XPROTO_VERSION}.tar.gz
 pushd xproto-${XPROTO_VERSION}
 
+# xproto does not support musl targets so we pretend it is gnu
 CFLAGS="${EXTRA_TARGET_CFLAGS} -fPIC" CPPFLAGS="${EXTRA_TARGET_CFLAGS} -fPIC" LDFLAGS="${EXTRA_TARGET_LDFLAGS}" ./configure \
     --build=${BUILD_TRIPLE} \
-    --host=${TARGET_TRIPLE} \
+    --host="${TARGET_TRIPLE/-musl/-gnu}" \
     --prefix=/tools/deps
 
 make -j ${NUM_CPUS}
